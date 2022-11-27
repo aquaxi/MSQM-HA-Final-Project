@@ -9,7 +9,7 @@
 project = 'MSQM-HA Final Project'
 copyright = '2022, Team 4'
 author = 'Team 4'
-release = '11/22/22'
+release = '11/27/22'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -20,11 +20,10 @@ templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 
-
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'haiku'
+html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
 import os
