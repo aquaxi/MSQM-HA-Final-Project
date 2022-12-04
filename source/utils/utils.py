@@ -1,10 +1,22 @@
+#utility Adapted from class 4
 from IPython.display import display, Markdown, HTML
 from sklearn.linear_model import LogisticRegression
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from nltk.stem import PorterStemmer 
+from nltk.stem import WordNetLemmatizer
+from sklearn.pipeline import make_pipeline,Pipeline
+from sklearn.preprocessing import LabelEncoder, MinMaxScaler
+lemmatizer = WordNetLemmatizer()
 from sklearn.model_selection import train_test_split, cross_val_predict, StratifiedKFold, GridSearchCV, cross_validate
 from sklearn.metrics import log_loss, accuracy_score, classification_report, f1_score, roc_auc_score
+import nltk
+import string
 import scikitplot as skplt
 import seaborn as sns
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
 #!/usr/bin/env python
 # coding: utf-8
@@ -29,57 +41,7 @@ def direct_match(keyword, document):
   return document.count(keyword)
 
 
-def get_top_n(bm25, query, n=5):
-    """ Get the top N ranking documents that match the query
-        
-    Args: 
-     bm25 : bm25 model
-     query (str): query text
-     n (int): number of document that would like to display
-    
-    Returns:
-     list of index correlated with the top ranking document that match query
-    """    
-    scores = np.array(bm25.get_scores(query))    
-    idx = np.argpartition(scores, -n)[-n:]  
 
-    return idx[np.argsort(-scores[idx])]
-
-def mark(s, color='black'):
-      return "<text style=color:{}>{}</text>".format(color, s)
-
-def highlight(keywords, tokens, color='SteelBlue'):
-
-    kw_set = set(keywords)
-    tokens_hl = []    
-    for t in tokens:
-        if t in kw_set:
-            tokens_hl.append('<b>'+mark(t, color=color)+'</b>')
-        else:
-            tokens_hl.append(t)
-    
-    return " ".join(tokens_hl)
-
-def color_label(labels):
-  """ Color the label according to the classes  
-    
-    Args:
-       Labels (list): list of classes (0-4) 
-    
-    return:
-       display with html format 
-  """  
-  color = {
-        0: 'Olive', #Cancer
-        1: 'Gold', #GI
-        2: 'SlateBlue', #CNS
-        3: 'DeepPink', #CV
-        4: 'SlateGray' #general
-    }
-  label_token = []
-  for i in labels:    
-    label_token.append(mark(dz_dict[i], color[i]))  
-  return display(HTML('<h3>Label:' + ', '.join(label_token)))
 
 def preprocess(text):
     """ Preprocess the text
@@ -166,6 +128,8 @@ def eval_model(X, y, model, probas = False):
     print(classification_report(y, preds))
 
 
+from sklearn.metrics import f1_score
+
 def eval_auc(y, probas):
   """ evaluate performance: calculate AUC score 
 
@@ -200,11 +164,78 @@ def evaluate_features(X, y, model = LogisticRegression()):
         Print out: AUC, F1 score, Accuracy, Confusion Matrix    
     """
     #scaler 
-    scaler = MinMaxScaler()
-    X = scaler.fit_transform(X)
+    #scaler = MinMaxScaler()
+    #X = scaler.fit_transform(X)
    
-    eval_model(X, y, model, probas = True)
+    try:           
+        probas = cross_val_predict(model, X, y, cv=StratifiedKFold(n_splits = 5, shuffle = True, random_state = 42), 
+                                  n_jobs=-1, method='predict_proba', verbose=2)
+    except: 
+      try:    #models without proba
+        probas = model.predict_proba(X)
+      except:  #NNT
+        probas = model.model.predict(X)
+
+    auc = eval_auc(y, probas)
     
+    pred_indices = np.argmax(probas, axis=1)
+    classes = np.unique(y)
+    preds = classes[pred_indices]
+
+    acc = accuracy_score(y, preds)
+    f1 = f1_score(y,preds,average='weighted')
+    print(f'Accuracy: {acc:.3f}\n')
+    skplt.metrics.plot_confusion_matrix(y, preds)
+    print(classification_report(y, preds))
+    metrics = {
+        'auc':np.mean(auc),
+        'accuracy': acc,
+        'f1_score':f1
+    }
+    return metrics
+    
+    
+
+
+
+    
+import os
+import fasttext
+# Prepare document 
+
+def train_fasttext(data, x_col = 'clean', y_col = 'label' ,file = 'fast'):
+  
+  file_name = file + '_'   
+  try:
+    os.remove(file_name+'train')
+    os.remove(file_name+'test')
+    print('previous file deleted')
+  except:
+    print('no exist file')
+
+  for x in ['train','test']:
+    with open( file_name + x,'w') as f:
+      for i in (data[data['data_type']==x]).index:
+        f.write('__label__'+str(data[y_col][i])+' '+data[x_col][i])
+        f.write('\n')
+  f.close()   
+  print('Complete loading file, Start training the model')   
+  model =fasttext.train_supervised(input= file_name+'train', 
+                                   epoch=25, 
+                                   wordNgrams=2, 
+                                   lr = 0.5)
+  
+  #evaluate the result 
+  preds = []
+  df = data[data['data_type']=='test']
+
+  for i in df.index:
+    preds.append(model.predict(df['clean'][i])[0][0][-1])
+
+  print(classification_report(df['label'].astype(str), preds))
+  skplt.metrics.plot_confusion_matrix(df['label'].astype(str), preds)
+
+  return model     
 
 def sanity_check(model):
   """ Check the result of classification  
