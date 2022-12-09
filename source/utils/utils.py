@@ -23,24 +23,6 @@ import pandas as pd
 
 # In[ ]:
 
-def direct_match(keyword, document):
-  """ Count of substring keyword matches in a document
-
-  This function counts the number of keyword matches in a document.
-  This is a substring match and is case-sensitive.
-  Example if keyword = 'tax' and document = 'tax on taxes' then
-  the number of matches would be = 2.
-
-  Args:
-    keyword  (str): String to match on
-    document (str): Document searched for matches
-
-  Returns:
-    int: Count of keyword matches in document
-  """
-  return document.count(keyword)
-
-
 
 
 def preprocess(text):
@@ -196,46 +178,61 @@ def evaluate_features(X, y, model = LogisticRegression()):
     
     
 
-
-
     
 import os
 import fasttext
 # Prepare document 
 
 def train_fasttext(data, x_col = 'clean', y_col = 'label' ,file = 'fast'):
-  
-  file_name = file + '_'   
-  try:
-    os.remove(file_name+'train')
-    os.remove(file_name+'test')
-    print('previous file deleted')
-  except:
-    print('no exist file')
+    """ Train the dataset with Fasttext model 
+   
+    Args:
+        data: dataset in format for dataframe
+        x_col : input variables 
+        y_col : output variables
+        file : name of the file that attempt to save
+        
+    return: model, performance of model
+    """ 
+    
+    file_name = file + '_'   
+    try:
+        os.remove(file_name+'train')
+        os.remove(file_name+'test')
+        print('previous file deleted')
+    except:
+        print('no exist file')
 
-  for x in ['train','test']:
-    with open( file_name + x,'w') as f:
-      for i in (data[data['data_type']==x]).index:
-        f.write('__label__'+str(data[y_col][i])+' '+data[x_col][i])
-        f.write('\n')
-  f.close()   
-  print('Complete loading file, Start training the model')   
-  model =fasttext.train_supervised(input= file_name+'train', 
+    for x in ['train','test']:
+        with open( file_name + x,'w') as f:
+          for i in (data[data['data_type']==x]).index:
+            f.write('__label__'+str(data[y_col][i])+' '+data[x_col][i])
+            f.write('\n')
+        f.close()   
+    
+    print('Complete loading file, Start training the model')   
+    model =fasttext.train_supervised(input= file_name+'train', 
                                    epoch=25, 
                                    wordNgrams=2, 
                                    lr = 0.5)
-  
-  #evaluate the result 
-  preds = []
-  df = data[data['data_type']=='test']
 
-  for i in df.index:
-    preds.append(model.predict(df['clean'][i])[0][0][-1])
+      #evaluate the result 
+    preds = []
+    df = data[data['data_type']=='test']
 
-  print(classification_report(df['label'].astype(str), preds))
-  skplt.metrics.plot_confusion_matrix(df['label'].astype(str), preds)
+    for i in df.index:
+        preds.append(model.predict(df['clean'][i])[0][0][-1])
 
-  return model     
+    print(classification_report(df['label'].astype(str), preds))
+    acc = accuracy_score(y, preds)
+    f1 = f1_score(y,preds,average='weighted')
+    skplt.metrics.plot_confusion_matrix(df['label'].astype(str), preds)
+    result = {
+    'auc': None,
+    'accuracy': acc,
+    'f1_score': f1
+    }  
+    return model, result     
 
 def sanity_check(model):
   """ Check the result of classification  

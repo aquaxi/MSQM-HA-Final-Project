@@ -44,14 +44,12 @@
 <li><a class="reference internal" href="#utils.utils.MeanEmbeddingVectorizer.transform"><code class="docutils literal notranslate"><span class="pre">MeanEmbeddingVectorizer.transform</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#utils.utils.color_label"><code class="docutils literal notranslate"><span class="pre">color_label()</span></code></a></li>
-<li><a class="reference internal" href="#utils.utils.direct_match"><code class="docutils literal notranslate"><span class="pre">direct_match()</span></code></a></li>
 <li><a class="reference internal" href="#utils.utils.eval_auc"><code class="docutils literal notranslate"><span class="pre">eval_auc()</span></code></a></li>
 <li><a class="reference internal" href="#utils.utils.eval_model"><code class="docutils literal notranslate"><span class="pre">eval_model()</span></code></a></li>
 <li><a class="reference internal" href="#utils.utils.evaluate_features"><code class="docutils literal notranslate"><span class="pre">evaluate_features()</span></code></a></li>
-<li><a class="reference internal" href="#utils.utils.get_top_n"><code class="docutils literal notranslate"><span class="pre">get_top_n()</span></code></a></li>
 <li><a class="reference internal" href="#utils.utils.preprocess"><code class="docutils literal notranslate"><span class="pre">preprocess()</span></code></a></li>
 <li><a class="reference internal" href="#utils.utils.sanity_check"><code class="docutils literal notranslate"><span class="pre">sanity_check()</span></code></a></li>
+<li><a class="reference internal" href="#utils.utils.train_fasttext"><code class="docutils literal notranslate"><span class="pre">train_fasttext()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
@@ -91,7 +89,7 @@ This function has preloaded word2vec language model and use word2vec to transfor
 <dl class="py attribute">
 <dt class="sig sig-object py" id="utils.utils.MeanEmbeddingVectorizer.transform">
 <span class="sig-name descname"><span class="pre">transform</span></span><a class="headerlink" href="#utils.utils.MeanEmbeddingVectorizer.transform" title="Permalink to this definition"></a></dt>
-<dd><p>the word that intend to embeed</p>
+<dd><p>the word that intend to embed</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>str</p>
@@ -99,44 +97,6 @@ This function has preloaded word2vec language model and use word2vec to transfor
 </dl>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="utils.utils.color_label">
-<span class="sig-prename descclassname"><span class="pre">utils.utils.</span></span><span class="sig-name descname"><span class="pre">color_label</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.utils.color_label" title="Permalink to this definition"></a></dt>
-<dd><p>Color the label according to the classes</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>Labels</strong> (<em>list</em>) – list of classes (0-4)</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>display with html format</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="utils.utils.direct_match">
-<span class="sig-prename descclassname"><span class="pre">utils.utils.</span></span><span class="sig-name descname"><span class="pre">direct_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keyword</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">document</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.utils.direct_match" title="Permalink to this definition"></a></dt>
-<dd><p>Count of substring keyword matches in a document</p>
-<p>This function counts the number of keyword matches in a document.
-This is a substring match and is case-sensitive.
-Example if keyword = ‘tax’ and document = ‘tax on taxes’ then
-the number of matches would be = 2.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>keyword</strong> (<em>str</em>) – String to match on</p></li>
-<li><p><strong>document</strong> (<em>str</em>) – Document searched for matches</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Count of keyword matches in document</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -190,24 +150,6 @@ the number of matches would be = 2.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="utils.utils.get_top_n">
-<span class="sig-prename descclassname"><span class="pre">utils.utils.</span></span><span class="sig-name descname"><span class="pre">get_top_n</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bm25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.utils.get_top_n" title="Permalink to this definition"></a></dt>
-<dd><p>Get the top N ranking documents that match the query</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>bm25</strong> – bm25 model</p></li>
-<li><p><strong>query</strong> (<em>str</em>) – query text</p></li>
-<li><p><strong>n</strong> (<em>int</em>) – number of document that would like to display</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>list of index correlated with the top ranking document that match query</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="utils.utils.preprocess">
 <span class="sig-prename descclassname"><span class="pre">utils.utils.</span></span><span class="sig-name descname"><span class="pre">preprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.utils.preprocess" title="Permalink to this definition"></a></dt>
 <dd><p>Preprocess the text</p>
@@ -235,6 +177,23 @@ the number of matches would be = 2.</p>
 <dd class="field-odd"><p>classification count plot</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.utils.train_fasttext">
+<span class="sig-prename descclassname"><span class="pre">utils.utils.</span></span><span class="sig-name descname"><span class="pre">train_fasttext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'clean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'label'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fast'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.utils.train_fasttext" title="Permalink to this definition"></a></dt>
+<dd><p>Train the dataset with Fasttext model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – dataset in format for dataframe</p></li>
+<li><p><strong>x_col</strong> – input variables</p></li>
+<li><p><strong>y_col</strong> – output variables</p></li>
+<li><p><strong>file</strong> – name of the file that attempt to save</p></li>
+</ul>
+</dd>
+</dl>
+<p>return: model, performance of model</p>
 </dd></dl>
 
 <div class="toctree-wrapper compound">
